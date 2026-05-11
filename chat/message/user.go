@@ -215,6 +215,10 @@ func (u *User) render(m Message) string {
 			return ""
 		} else {
 			out += m.RenderFor(cfg)
+			if cfg.Bell {
+				// Ring the terminal bell on new incoming public messages.
+				out += Bel
+			}
 		}
 	case *PrivateMsg:
 		out += m.Render(cfg.Theme)

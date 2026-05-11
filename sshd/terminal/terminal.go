@@ -603,6 +603,12 @@ func (t *Terminal) handleKey(key rune) (line string, ok bool) {
 			t.eraseNPreviousChars(1)
 		}
 	case keyCtrlU:
+		// Clear the entire input line, regardless of cursor position.
+		if t.pos < len(t.line) {
+			// Move cursor to end of line so we can erase everything in one go.
+			t.pos = len(t.line)
+			t.moveCursorToPos(t.pos)
+		}
 		t.eraseNPreviousChars(t.pos)
 	case keyClearScreen:
 		// Erases the screen and moves the cursor to the home position.

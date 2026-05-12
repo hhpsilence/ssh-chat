@@ -118,7 +118,7 @@ func TestIgnore(t *testing.T) {
 	ch.HandleMsg(message.NewPublicMsg("hello", ignored.user))
 	other.user.HandleMsg(other.user.ConsumeOne())
 	other.screen.Read(&buffer)
-	expectOutput(t, buffer, ignored.user.Name()+": hello"+message.Newline)
+	expectOutput(t, buffer, ignored.user.Name()+": hello"+message.Bel+message.Newline)
 
 	// ensure ignorer doesn't have received any message
 	if ignorer.user.HasMessages() {
@@ -155,7 +155,7 @@ func TestIgnore(t *testing.T) {
 	}
 	ignorer.user.HandleMsg(ignorer.user.ConsumeOne())
 	ignorer.screen.Read(&buffer)
-	expectOutput(t, buffer, ignored.user.Name()+": hello again!"+message.Newline)
+	expectOutput(t, buffer, ignored.user.Name()+": hello again!"+message.Bel+message.Newline)
 }
 
 func TestMute(t *testing.T) {
@@ -243,7 +243,7 @@ func TestMute(t *testing.T) {
 	ch.HandleMsg(message.NewPublicMsg("hello again!", muted.user))
 	other.user.HandleMsg(other.user.ConsumeOne())
 	other.screen.Read(&buffer)
-	expectOutput(t, buffer, muted.user.Name()+": hello again!"+message.Newline)
+	expectOutput(t, buffer, muted.user.Name()+": hello again!"+message.Bel+message.Newline)
 }
 
 func expectOutput(t *testing.T, buffer []byte, expected string) {

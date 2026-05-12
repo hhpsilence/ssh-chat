@@ -29,6 +29,80 @@ func TestMakeUser(t *testing.T) {
 	}
 }
 
+func TestPublicMsgBell(t *testing.T) {
+	sender := NewUserScreen(SimpleID("alice"), &MockScreen{})
+	defer sender.Close()
+
+	s := &MockScreen{}
+	receiver := NewUserScreen(SimpleID("bob"), s)
+	cfg := receiver.Config()
+	cfg.Bell = true
+	cfg.Theme = MonoTheme
+	receiver.SetConfig(cfg)
+	defer receiver.Close()
+
+	msg := NewPublicMsg("hello", sender)
+	receiver.HandleMsg(msg)
+
+	var actual []byte
+	s.Read(&actual)
+	rendered := string(actual)
+
+	if len(rendered) == 0 {
+		t.Fatal("expected rendered output but got empty string")
+	}
+	if rendered[len(rendered)-len(Newline)-len(Bel):len(rendered)-len(Newline)] != Bel {
+		t.Errorf("expected BEL before newline in rendered public message, got: %q", rendered)
+	}
+}
+
+func TestPublicMsgNoBellWhenDisabled(t *testing.T) {
+	sender := NewUserScreen(SimpleID("alice"), &MockScreen{})
+	defer sender.Close()
+
+	s := &MockScreen{}
+	receiver := NewUserScreen(SimpleID("bob"), s)
+	cfg := receiver.Config()
+	cfg.Bell = false
+	cfg.Theme = MonoTheme
+	receiver.SetConfig(cfg)
+	defer receiver.Close()
+
+	msg := NewPublicMsg("hello", sender)
+	receiver.HandleMsg(msg)
+
+	var actual []byte
+	s.Read(&actual)
+	for _, b := range actual {
+		if b == '\007' {
+			t.Errorf("expected no BEL when bell is disabled, but got one in: %q", actual)
+			break
+		}
+	}
+}
+
+func TestPublicMsgNoBellForSelf(t *testing.T) {
+	s := &MockScreen{}
+	u := NewUserScreen(SimpleID("alice"), s)
+	cfg := u.Config()
+	cfg.Bell = true
+	cfg.Theme = MonoTheme
+	u.SetConfig(cfg)
+	defer u.Close()
+
+	msg := NewPublicMsg("my own message", u)
+	u.HandleMsg(msg)
+
+	var actual []byte
+	s.Read(&actual)
+	for _, b := range actual {
+		if b == '\007' {
+			t.Errorf("expected no BEL for own messages, but got one in: %q", actual)
+			break
+		}
+	}
+}
+
 func TestRenderTimestamp(t *testing.T) {
 	var actual, expected []byte
 

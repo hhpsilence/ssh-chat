@@ -187,10 +187,19 @@ var keyPressTests = []struct {
 		line: "a",
 	},
 	{
-		// a, b, c, d, left, left, ^U should erase to the beginning of
-		// the line.
+		// a, b, c, d, left, left, ^U should erase the WHOLE line (not just left of cursor).
 		in:   "abcd\x1b[D\x1b[D\025\r",
-		line: "cd",
+		line: "",
+	},
+	{
+		// ^U at end of line clears everything.
+		in:   "hello\025\r",
+		line: "",
+	},
+	{
+		// ^U at beginning of line (nothing to clear).
+		in:   "hello\x1b[H\025\r",
+		line: "",
 	},
 	{
 		// Bracketed paste mode: control sequences should be returned
